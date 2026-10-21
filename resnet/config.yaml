@@ -1,0 +1,31 @@
+# 骨架配置；null 表示待试跑后确定，训练实现应拒绝未填写的必需参数。
+experiment: resnet
+seed: 42
+
+model:
+  name: resnet50
+  pretrained_weights: DEFAULT
+  output_dim: 1
+  finetune_mode: null
+
+data:
+  root: data
+  train_manifest: manifests/train.csv
+  val_manifest: manifests/val.csv
+  image_size: 224
+  color_mode: RGB
+  normalization: pretrained_weights
+
+training:
+  loss: binary_cross_entropy_with_logits
+  batch_size: null
+  epochs: null
+  learning_rate: null
+  weight_decay: null
+
+augmentation:
+  enabled: false
+
+paths:
+  checkpoint_dir: checkpoints/resnet
+  output_dir: outputs/resnet

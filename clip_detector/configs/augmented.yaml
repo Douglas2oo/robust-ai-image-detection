@@ -1,0 +1,48 @@
+# 与 baseline.yaml 共用模型和训练实现；增强及缓存策略需在试跑后确定。
+experiment: clip_augmented
+seed: 42
+
+model:
+  name: ViT-L/14
+  provider: openai_clip
+  freeze_encoder: true
+  output_dim: 1
+  normalize_features: null
+
+data:
+  root: data
+  train_manifest: manifests/train.csv
+  val_manifest: manifests/val.csv
+  image_size: 224
+  color_mode: RGB
+  normalization: pretrained_weights
+
+training:
+  loss: binary_cross_entropy_with_logits
+  batch_size: null
+  epochs: null
+  learning_rate: null
+  weight_decay: null
+
+augmentation:
+  enabled: true
+  seed: 42
+  order: null
+  jpeg:
+    probability: null
+    quality_range: null
+  resize:
+    probability: null
+    scale_range: null
+  gaussian_blur:
+    probability: null
+    sigma_range: null
+
+features:
+  mode: null  # 待确定：online_augmented 或 cached_augmented_views
+  views_per_image: null
+  cache_dir: cache/clip_augmented
+
+paths:
+  checkpoint_dir: checkpoints/clip_augmented
+  output_dir: outputs/clip_augmented

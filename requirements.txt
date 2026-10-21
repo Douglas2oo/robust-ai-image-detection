@@ -1,0 +1,11 @@
+# 初始依赖清单；环境验证后由团队锁定版本。
+torch
+torchvision
+numpy
+Pillow
+PyYAML
+scikit-learn
+tqdm
+matplotlib
+ImageHash
+git+https://github.com/openai/CLIP.git

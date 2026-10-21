@@ -1,0 +1,28 @@
+# 运行数据与成果：保留目录占位文件，排除大文件
+/data/*
+!/data/.gitkeep
+/cache/*
+!/cache/.gitkeep
+/checkpoints/*
+!/checkpoints/.gitkeep
+/outputs/*
+!/outputs/.gitkeep
+/datasets/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Python 环境和工具缓存
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# 本地配置
+.env
+.env.*
+!.env.example
+.DS_Store

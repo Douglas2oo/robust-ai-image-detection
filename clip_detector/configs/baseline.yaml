@@ -1,0 +1,36 @@
+# 与 augmented.yaml 共用模型和训练实现；null 参数需在试跑后填写。
+experiment: clip_baseline
+seed: 42
+
+model:
+  name: ViT-L/14
+  provider: openai_clip
+  freeze_encoder: true
+  output_dim: 1
+  normalize_features: null
+
+data:
+  root: data
+  train_manifest: manifests/train.csv
+  val_manifest: manifests/val.csv
+  image_size: 224
+  color_mode: RGB
+  normalization: pretrained_weights
+
+training:
+  loss: binary_cross_entropy_with_logits
+  batch_size: null
+  epochs: null
+  learning_rate: null
+  weight_decay: null
+
+augmentation:
+  enabled: false
+
+features:
+  mode: cached_original
+  cache_dir: cache/clip_baseline
+
+paths:
+  checkpoint_dir: checkpoints/clip_baseline
+  output_dir: outputs/clip_baseline
