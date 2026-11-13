@@ -1,6 +1,6 @@
 # Robust AI Generated Image Detection
 
-MAIE5421 / ARIN5201 课程项目。当前已建立可供分工开发的目录、配置与接口骨架，模型、数据处理、训练、校准和评测均待实现。
+MAIE5421 / ARIN5201 课程项目。已实现冻结 CLIP ViT-L/14 特征缓存与线性分类头训练；ResNet、数据准备、校准和统一评测仍在开发中。
 
 ## 分工与实验组织
 
@@ -77,19 +77,21 @@ python -m scripts.evaluate --help
 python -m scripts.predict --help
 ```
 
-目前实际执行训练、缓存、数据准备、评测或推理会明确报“尚未实现”并以非零状态退出，不会产生模型或实验结果。
+CLIP 训练和缓存入口可执行；ResNet、数据准备、公共评测和推理入口仍是骨架。
 
 ## 计划中的训练入口
 
-下列命令用于说明完成实现后的接口，当前不能训练：
+CLIP 两组实验先缓存特征，再训练分类头：
 
 ```bash
 python -m resnet.train --config resnet/config.yaml
+python -m clip_detector.cache_features --config clip_detector/configs/baseline.yaml
 python -m clip_detector.train --config clip_detector/configs/baseline.yaml
+python -m clip_detector.cache_features --config clip_detector/configs/augmented.yaml
 python -m clip_detector.train --config clip_detector/configs/augmented.yaml
 ```
 
-配置中的 `null` 表示尚待确定，不是有效训练参数。实现配置校验时必须拒绝未填写的必需参数。ResNet 的微调范围、两组 CLIP 共用的特征归一化策略、优化参数及增强/缓存方式都要在试跑后明确。
+ResNet 配置中的 `null` 仍表示尚待确定；CLIP 配置已锁定 ViT-L/14、L2 特征归一化、AdamW 参数与增强缓存设置。CLIP 参数详情见 `clip_detector/README.md`。
 
 所有配置中的相对路径以项目根目录为基准，因此以上命令在项目根目录运行。
 
@@ -99,11 +101,11 @@ python -m clip_detector.train --config clip_detector/configs/augmented.yaml
 2. 输入为 RGB、224 像素图像。基础几何处理口径一致，归一化采用各预训练权重的参数。
 3. 模型输出每张图片的单个原始 logit；公共校准模块计算 `P(AI)`，并应用验证集确定的温度与阈值。
 4. CLIP 编码器冻结，两组实验共用模型与训练代码，分别训练分类头。主消融仅改变增强相关设置。
-5. 特征缓存区分原图和增强视图，并记录数据清单、编码器、预处理、特征归一化及增强配置。缓存不能仅凭实验名称判断有效。
+5. 特征缓存区分原图和增强视图，并记录数据清单、编码器、预处理、特征归一化及增强配置。缓存不能仅凭实验名称判断有效；提取过程按 chunk 原子保存并支持中断续跑。
 6. 仅使用验证集选参和校准，测试前冻结规则和数值。正式测试包括已见、未见、外部数据与共同扰动条件。
 7. 建议逐图预测至少保存 `run_id,image_id,label,generator,condition,logit,p_ai,prediction`。汇总表必须可以从预测文件重算。
 
-检查点至少保存模型类型、权重、有效配置、训练种子、数据清单版本、预处理、温度及阈值，使公共评测和推理入口可以恢复完整检测流程。
+CLIP 训练每轮原子保存 `last.pt`，并在验证 loss 改善时保存 `best.pt`。`last.pt` 保存优化器、训练历史和随机数状态用于 `--resume`；`best.pt` 供公共评测和推理加载。
 
 ## 成果与 Git
 
