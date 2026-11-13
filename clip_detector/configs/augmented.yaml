@@ -1,4 +1,4 @@
-# 与 baseline.yaml 共用模型和训练实现；增强及缓存策略需在试跑后确定。
+# Frozen CLIP features from two fixed augmented views per training image.
 experiment: clip_augmented
 seed: 42
 
@@ -7,7 +7,8 @@ model:
   provider: openai_clip
   freeze_encoder: true
   output_dim: 1
-  normalize_features: null
+  feature_dim: 768
+  normalize_features: true
 
 data:
   root: data
@@ -19,28 +20,32 @@ data:
 
 training:
   loss: binary_cross_entropy_with_logits
-  batch_size: null
-  epochs: null
-  learning_rate: null
-  weight_decay: null
+  batch_size: 1024
+  epochs: 20
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  patience: 5
 
 augmentation:
   enabled: true
   seed: 42
-  order: null
+  order: [jpeg, resize, gaussian_blur]
   jpeg:
-    probability: null
-    quality_range: null
+    probability: 0.5
+    quality_range: [50, 100]
   resize:
-    probability: null
-    scale_range: null
+    probability: 0.5
+    scale_range: [0.5, 1.0]
   gaussian_blur:
-    probability: null
-    sigma_range: null
+    probability: 0.5
+    sigma_range: [0.1, 1.0]
 
 features:
-  mode: null  # 待确定：online_augmented 或 cached_augmented_views
-  views_per_image: null
+  mode: cached_augmented_views
+  views_per_image: 2
+  batch_size: 32
+  cache_chunk_size: 512
+  num_workers: 2
   cache_dir: cache/clip_augmented
 
 paths:

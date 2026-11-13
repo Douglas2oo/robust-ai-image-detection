@@ -1,4 +1,4 @@
-# 与 augmented.yaml 共用模型和训练实现；null 参数需在试跑后填写。
+# Frozen CLIP feature cache + linear probing baseline.
 experiment: clip_baseline
 seed: 42
 
@@ -7,7 +7,8 @@ model:
   provider: openai_clip
   freeze_encoder: true
   output_dim: 1
-  normalize_features: null
+  feature_dim: 768
+  normalize_features: true
 
 data:
   root: data
@@ -19,16 +20,21 @@ data:
 
 training:
   loss: binary_cross_entropy_with_logits
-  batch_size: null
-  epochs: null
-  learning_rate: null
-  weight_decay: null
+  batch_size: 1024
+  epochs: 20
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  patience: 5
 
 augmentation:
   enabled: false
 
 features:
   mode: cached_original
+  views_per_image: 1
+  batch_size: 32
+  cache_chunk_size: 512
+  num_workers: 2
   cache_dir: cache/clip_baseline
 
 paths:
