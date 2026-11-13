@@ -1,7 +1,32 @@
-"""基础图像预处理：待实现。
+"""Small helpers shared by model-specific preprocessing pipelines."""
 
-共享 RGB 转换和约定的尺寸/裁剪流程，输入尺寸为 224。
-ResNet 与 CLIP 使用各自预训练权重要求的归一化参数。
-图像空间增强与扰动在张量归一化前执行。
-明确缩放插值、裁剪位置和图像尺寸基准；所有设置写入运行配置。
-"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from PIL import Image
+
+
+CLIP_PREPROCESS_VERSION = "openai_clip_preprocess_v1"
+
+
+def ensure_rgb(image: Image.Image) -> Image.Image:
+    """Return an RGB image while keeping preprocessing separate from augmentation."""
+
+    return image if image.mode == "RGB" else image.convert("RGB")
+
+
+def preprocess_clip_image(image: Image.Image, clip_preprocess):
+    """Apply the transform returned by ``clip.load`` to an RGB image."""
+
+    return clip_preprocess(ensure_rgb(image))
+
+
+@dataclass
+class ClipImagePreprocessor:
+    """Picklable wrapper suitable for DataLoader worker processes."""
+
+    transform: object
+
+    def __call__(self, image: Image.Image):
+        return preprocess_clip_image(image, self.transform)
