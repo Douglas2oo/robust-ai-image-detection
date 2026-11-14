@@ -1,0 +1,27 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{2}{c}{SD1.4 Bal.\ Acc} & \multicolumn{2}{c}{Unseen Bal.\ Acc} & \multicolumn{2}{c}{Unseen AUROC} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Perturbation & w/o & +aug & w/o & +aug & w/o & +aug \\
+\midrule
+Clean & \textbf{95.6} & 93.7 & \textbf{75.7} & 74.3 & \textbf{89.2} & 87.6 \\
+\midrule
+JPEG $q$=90 & 86.7 & \textbf{95.5} & 67.6 & \textbf{74.9} & 82.2 & \textbf{88.9} \\
+JPEG $q$=70 & 80.0 & \textbf{96.8} & 63.4 & \textbf{74.1} & 77.8 & \textbf{86.8} \\
+JPEG $q$=50 & 69.1 & \textbf{96.3} & 59.6 & \textbf{74.3} & 77.0 & \textbf{89.1} \\
+\midrule
+Down $0.5\times$ & 89.1 & \textbf{92.6} & 66.4 & \textbf{67.2} & 72.2 & \textbf{73.3} \\
+Down $0.25\times$ & 87.1 & \textbf{89.0} & \textbf{68.9} & 67.9 & 77.8 & 78.2 \\
+\midrule
+Blur $\sigma$=0.5 & \textbf{94.8} & 93.5 & \textbf{73.0} & 72.4 & 83.6 & \textbf{84.9} \\
+Blur $\sigma$=1.0 & 91.1 & \textbf{93.4} & 68.6 & 68.3 & 74.4 & 74.9 \\
+\bottomrule
+\end{tabular}}
+\caption{Robustness to test-time perturbations (\%, mean over 3 seeds; bold = better by $>$0.5 pt). Unseen = average over SD1.5, Midjourney, ADM and BigGAN. Note: the training augmentation ranges (JPEG $q\in[50,100]$, scale $\in[0.25,1]$, $\sigma\in[0.1,1.5]$) cover these test perturbations.}
+\label{tab:robust}
+\end{table}
