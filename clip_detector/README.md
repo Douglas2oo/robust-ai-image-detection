@@ -1,60 +1,54 @@
 # CLIP Detector
 
-两组 CLIP 实验共用冻结 OpenAI CLIP ViT-L/14 编码器和线性二分类头。C0 使用原图特征；C1 对每张训练图片生成两个固定增强视图。两组验证均使用原图。
+冻结的 OpenAI CLIP ViT-L/14 图像编码器（768 维投影特征，不做 L2 归一化）+ 线性二分类头，做法同 UniversalFakeDetect
 
-| 文件 | 职责 |
-| --- | --- |
-| `model.py` | 冻结 CLIP ViT-L/14＋线性二分类头，两组实验共用 |
-| `train.py` | 唯一的 CLIP 训练入口，按配置决定是否启用增强 |
-| `augmentations.py` | 对真假图片对称施加训练增强 |
-| `cache_features.py` | 原图或增强视图特征提取与缓存 |
-| `configs/baseline.yaml` | 无额外扰动增强的实验配置 |
-| `configs/augmented.yaml` | 增强实验配置 |
+| 文件                     | 职责                                                   |
+| ------------------------ | ------------------------------------------------------ |
+| `model.py`               | 冻结 CLIP 编码器、线性头、检查点读取                   |
+| `augmentations.py`       | 训练增强（翻转 + `common.corruptions.random_degrade`） |
+| `cache_features.py`      | 抽取并缓存训练 / 验证 / 测试特征                       |
+| `train.py`               | 训练线性头，验证集选参、早停、温度缩放、阈值           |
+| `config.py`              | 配置读取、路径解析                                     |
+| `configs/baseline.yaml`  | C0 `clip_noaug`：无退化增强                            |
+| `configs/augmented.yaml` | C1 `clip_aug`：有退化增强                              |
 
-从项目根目录运行。首次运行先生成特征缓存：
+## 训练增强
+
+|                              | `clip_noaug` | `clip_aug`            |
+| ---------------------------- | ------------ | --------------------- |
+| 随机水平翻转                 | 50%          | 50%                   |
+| 缩小再放大回原尺寸（双线性） | —            | 30%，比例 ∈ [0.25, 1] |
+| 高斯模糊                     | —            | 30%，σ ∈ [0.1, 1.5]   |
+| JPEG 重新压缩                | —            | 50%，质量 ∈ [50, 100] |
+| 每张训练图缓存的视图数       | 4            | 4                     |
+
+三种退化独立抽样、可叠加，顺序固定为 缩放 → 模糊 → JPEG；真实图和生成图使用相同的概率和范围，在原始分辨率上施加。
+注意：增强范围覆盖了测试扰动的强度，所以鲁棒性测试属于训练分布内的扰动。
+
+## 流程
 
 ```bash
 python -m clip_detector.cache_features --config clip_detector/configs/baseline.yaml
 python -m clip_detector.cache_features --config clip_detector/configs/augmented.yaml
+python -m clip_detector.train --config clip_detector/configs/baseline.yaml
+python -m clip_detector.train --config clip_detector/configs/augmented.yaml
 ```
 
-再分别训练三个固定种子；每次运行使用独立输出目录，已存在的种子目录不会被覆盖：
+**特征缓存**（`<cache_dir>/`）：
 
-```bash
-for seed in 42 43 44; do
-  python -m clip_detector.train --config clip_detector/configs/baseline.yaml --seed "$seed"
-  python -m clip_detector.train --config clip_detector/configs/augmented.yaml --seed "$seed"
-done
-```
+| 文件                              | 内容                              | 形状        |
+| --------------------------------- | --------------------------------- | ----------- |
+| `train_clean.pt` / `train_aug.pt` | `train.csv` 的 4 个视图           | N × 4 × 768 |
+| `val_eval.pt`                     | `val.csv`，8 种测试扰动各一个视图 | N × 8 × 768 |
+| `test/test_*.pt`                  | 每个 `test_*.csv`，同上           | N × 8 × 768 |
 
-缓存使用官方 CLIP 图像预处理并将归一化后的 768 维特征以 float32 保存。增强配置为各自独立的 p=0.5：JPEG Q=50–100、随机缩放 0.5–1.0 后恢复尺寸、Gaussian blur sigma=0.1–1.0。视图种子固定于配置，因此三个分类头种子复用相同缓存。特征提取默认每 512 张源图片保存一个 chunk；命令中断后直接重新执行同一条缓存命令，会校验并跳过已完成 chunk。
+验证集和测试集的缓存由两组实验共用。视图的随机种子由 `features.view_seed` 和（图片序号, 视图序号）确定，所有分类头种子共用同一份缓存。已存在的缓存会跳过；文件原子写入，作业中断后重新运行同一条命令即可。
 
-训练默认 AdamW (`lr=1e-3`, `weight_decay=1e-4`)，最多 20 轮，按验证 BCE loss 早停（patience 5）。每轮结束后原子更新 `last.pt`，验证 loss 改善时立即原子更新 `best.pt`。日志、指标和逐图验证 logits 保存在对应的 `outputs/` 子目录。配置中的未填写字段会被拒绝。
+**训练**：每个 epoch 每张图随机取 4 个视图中的一个；AdamW，BCE；在 `learning_rates × weight_decays` 网格上按验证集（原图）BCE 选最优并早停（最多 400 轮，耐心 20）。然后只用验证集拟合温度 T，并取验证集平衡准确率最高的阈值。
 
-训练中断后使用相同配置和 seed 恢复；不带路径的 `--resume` 会自动使用该 seed 目录中的 `last.pt`：
+输出 `<checkpoint_dir>/<experiment>/seed<k>/`：
 
-```bash
-python -m clip_detector.train \
-  --config clip_detector/configs/baseline.yaml \
-  --seed 42 \
-  --resume
-```
+- `head.pt`：线性头权重、`temperature`、`threshold`、选中的超参数、缓存元信息；
+- `train_log.json`：整个网格的结果、每轮损失、验证集指标（校准前后）。
 
-也可以显式指定 checkpoint：
-
-```bash
-python -m clip_detector.train \
-  --config clip_detector/configs/baseline.yaml \
-  --seed 42 \
-  --resume checkpoints/clip_baseline/seed_42/last.pt
-```
-
-`last.pt` 包含当前分类头、优化器、已完成 epoch、最佳权重、早停计数、训练历史和随机数状态。恢复时会校验完整配置、seed 以及 train/val 缓存签名；配置不一致会拒绝续跑。训练最多重跑中断时尚未完成的一个 epoch，缓存最多重跑尚未完成的一个 chunk。必须保留 `cache/`、`checkpoints/` 和 `outputs/` 才能续跑。
-
-数据清单必须提供 `manifests/README.md` 中的全部字段；训练和验证行的 `split` 必须分别为 `train` 和 `val`。缓存前会拒绝重复 ID、跨训练/验证重复图像或重复组。温度缩放、阈值和正式测试由公共评测流程负责。
-
-缓存或完整训练流程的轻量测试：
-
-```bash
-python -m unittest discover -s tests
-```
+已存在的种子默认跳过；需要重训时加 `--overwrite`。测试由 `scripts/evaluate.py` 统一完成。

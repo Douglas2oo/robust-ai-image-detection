@@ -1,53 +1,49 @@
-# Frozen CLIP features from two fixed augmented views per training image.
-experiment: clip_augmented
-seed: 42
+# C1：与 C0 唯一的区别是训练图在抽特征前做对称的随机退化增强
+experiment: clip_aug
 
 model:
-  name: ViT-L/14
-  provider: openai_clip
-  freeze_encoder: true
-  output_dim: 1
+  name: openai/clip-vit-large-patch14
   feature_dim: 768
-  normalize_features: true
+  freeze_encoder: true
+  normalize_features: false
 
-data:
-  root: data
-  train_manifest: manifests/train.csv
-  val_manifest: manifests/val.csv
-  image_size: 224
-  color_mode: RGB
-  normalization: pretrained_weights
-
-training:
-  loss: binary_cross_entropy_with_logits
-  batch_size: 1024
-  epochs: 20
-  learning_rate: 0.001
-  weight_decay: 0.0001
-  patience: 5
+paths:
+  data_root: data
+  manifest_dir: manifests
+  cache_dir: cache/clip
+  checkpoint_dir: checkpoints
+  output_dir: outputs
 
 augmentation:
   enabled: true
-  seed: 42
-  order: [jpeg, resize, gaussian_blur]
+  hflip: 0.5
+  # 三种退化独立抽样、可叠加；顺序固定为 resize -> gaussian_blur -> jpeg
+  # 真实图和生成图使用相同的概率和范围，在原始分辨率上施加
+  resize:
+    probability: 0.3
+    scale_range: [0.25, 1.0]
+  gaussian_blur:
+    probability: 0.3
+    sigma_range: [0.1, 1.5]
   jpeg:
     probability: 0.5
     quality_range: [50, 100]
-  resize:
-    probability: 0.5
-    scale_range: [0.5, 1.0]
-  gaussian_blur:
-    probability: 0.5
-    sigma_range: [0.1, 1.0]
 
 features:
-  mode: cached_augmented_views
-  views_per_image: 2
-  batch_size: 32
-  cache_chunk_size: 512
-  num_workers: 2
-  cache_dir: cache/clip_augmented
+  views_per_image: 4
+  view_seed: 0
+  batch_size: 64
+  num_workers: auto
 
-paths:
-  checkpoint_dir: checkpoints/clip_augmented
-  output_dir: outputs/clip_augmented
+training:
+  loss: binary_cross_entropy_with_logits
+  seeds: [0, 1, 2]
+  learning_rates: [0.001, 0.0003, 0.0001]
+  weight_decays: [0.0, 0.0001, 0.01]
+  epochs: 400
+  patience: 20
+  batch_size: 512
+
+evaluation:
+  perturbations:
+    [clean, jpeg90, jpeg70, jpeg50, down0.5, down0.25, blur0.5, blur1.0]

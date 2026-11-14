@@ -1,42 +1,38 @@
-# Frozen CLIP feature cache + linear probing baseline.
-experiment: clip_baseline
-seed: 42
+# C0：冻结 CLIP ViT-L/14 + 线性头，训练图只做随机水平翻转，无退化增强
+experiment: clip_noaug
 
 model:
-  name: ViT-L/14
-  provider: openai_clip
+  name: openai/clip-vit-large-patch14 # HuggingFace 上的 OpenAI 官方权重
+  feature_dim: 768 # 投影后的图像特征
   freeze_encoder: true
-  output_dim: 1
-  feature_dim: 768
-  normalize_features: true
+  normalize_features: false # 与 UniversalFakeDetect 一致，不做 L2 归一化
 
-data:
-  root: data
-  train_manifest: manifests/train.csv
-  val_manifest: manifests/val.csv
-  image_size: 224
-  color_mode: RGB
-  normalization: pretrained_weights
-
-training:
-  loss: binary_cross_entropy_with_logits
-  batch_size: 1024
-  epochs: 20
-  learning_rate: 0.001
-  weight_decay: 0.0001
-  patience: 5
+paths:
+  data_root: data
+  manifest_dir: manifests
+  cache_dir: cache/clip
+  checkpoint_dir: checkpoints
+  output_dir: outputs
 
 augmentation:
   enabled: false
+  hflip: 0.5
 
 features:
-  mode: cached_original
-  views_per_image: 1
-  batch_size: 32
-  cache_chunk_size: 512
-  num_workers: 2
-  cache_dir: cache/clip_baseline
+  views_per_image: 4 # 每张训练图预先抽 4 个视图；每个 epoch 随机取 1 个
+  view_seed: 0 # 视图随机种子
+  batch_size: 64
+  num_workers: auto
 
-paths:
-  checkpoint_dir: checkpoints/clip_baseline
-  output_dir: outputs/clip_baseline
+training:
+  loss: binary_cross_entropy_with_logits
+  seeds: [0, 1, 2]
+  learning_rates: [0.001, 0.0003, 0.0001] # 与 weight_decays 组成网格，按验证集 BCE 选择
+  weight_decays: [0.0, 0.0001, 0.01]
+  epochs: 400
+  patience: 20
+  batch_size: 512
+
+evaluation:
+  perturbations:
+    [clean, jpeg90, jpeg70, jpeg50, down0.5, down0.25, blur0.5, blur1.0]

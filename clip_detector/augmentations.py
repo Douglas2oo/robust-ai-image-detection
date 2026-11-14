@@ -1,63 +1,31 @@
-"""Deterministic image-space augmentation used before CLIP preprocessing."""
+"""CLIP 训练增强：随机水平翻转 + 对称的随机退化（缩放 -> 模糊 -> JPEG）
+
+退化本身在 common.corruptions.random_degrade 中实现，供其他模型复用；
+连接YAML配置，提供一个独立可调用的增强器
+"""
 
 from __future__ import annotations
 
-import io
 import random
-from typing import Any, Dict, List
+from typing import Any, Dict, Optional
 
-from PIL import Image, ImageFilter
+from PIL import Image
 
-
-def _resampling_bicubic():
-    return getattr(Image, "Resampling", Image).BICUBIC
+from common.corruptions import random_degrade
 
 
 class ClipAugmenter:
-    """Apply independently sampled JPEG, resize, and blur transformations."""
+    """image, seed 增强后的图片"""
 
-    def __init__(self, config: Dict[str, Any]) -> None:
-        self.config = config
-        self.order: List[str] = list(config.get("order", ["jpeg", "resize", "gaussian_blur"]))
-        allowed = {"jpeg", "resize", "gaussian_blur"}
-        if set(self.order) != allowed or len(self.order) != len(allowed):
-            raise ValueError("augmentation.order must contain jpeg, resize, gaussian_blur once each")
-
-    @staticmethod
-    def _should_apply(section: Dict[str, Any], rng: random.Random) -> bool:
-        return rng.random() < float(section["probability"])
-
-    @staticmethod
-    def _jpeg(image: Image.Image, quality: int) -> Image.Image:
-        buffer = io.BytesIO()
-        image.save(buffer, format="JPEG", quality=int(quality), optimize=False)
-        buffer.seek(0)
-        with Image.open(buffer) as compressed:
-            return compressed.convert("RGB").copy()
-
-    @staticmethod
-    def _resize_roundtrip(image: Image.Image, scale: float) -> Image.Image:
-        width, height = image.size
-        resized = image.resize(
-            (max(1, round(width * scale)), max(1, round(height * scale))),
-            resample=_resampling_bicubic(),
-        )
-        return resized.resize((width, height), resample=_resampling_bicubic())
+    def __init__(self, degrade_cfg: Optional[Dict[str, Any]], hflip: float = 0.5) -> None:
+        self.degrade_cfg = degrade_cfg
+        self.hflip = float(hflip)
 
     def __call__(self, image: Image.Image, seed: int) -> Image.Image:
         rng = random.Random(int(seed))
         output = image.convert("RGB")
-        for name in self.order:
-            section = self.config[name]
-            if not self._should_apply(section, rng):
-                continue
-            if name == "jpeg":
-                low, high = section["quality_range"]
-                output = self._jpeg(output, rng.randint(int(low), int(high)))
-            elif name == "resize":
-                low, high = section["scale_range"]
-                output = self._resize_roundtrip(output, rng.uniform(float(low), float(high)))
-            else:
-                low, high = section["sigma_range"]
-                output = output.filter(ImageFilter.GaussianBlur(rng.uniform(float(low), float(high))))
+        if rng.random() < self.hflip:
+            output = output.transpose(Image.FLIP_LEFT_RIGHT)
+        if self.degrade_cfg is not None:
+            output = random_degrade(output, rng, self.degrade_cfg)
         return output
