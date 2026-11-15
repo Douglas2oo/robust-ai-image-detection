@@ -1,0 +1,21 @@
+{
+  "source": {
+    "train.csv": "1f7a8661632a2572673154b32253dcb27f82ee85f0d4ba17ba02d812f8193d04",
+    "val.csv": "7abd9e3e5ca282c9b09efd9982180c382820d160405c8b065f9ca83cb067d8c7",
+    "test_sd14.csv": "8b67f00beb770ce5d1e0b6a442818797c583eb46a8d8d7f6307106155f5d7010",
+    "test_sd15.csv": "f1f57a8373575959ebdd03f1ef8fd2e53ef742634546730a235cf68f0b24d095",
+    "test_adm.csv": "0583464a0086318a2de99d319b3cb6a2fbc8ca22f37da3ef112f34a869f070bb",
+    "test_midjourney.csv": "b953ebc91b6596e38a44627060e5ed3af5228f4022f7ecda80fde16043184d46",
+    "test_biggan.csv": "3995f989ac30dbc87732fd7f760464c8960068726c327eca7c73f04eb5832b5b"
+  },
+  "converted": {
+    "train.csv": "944c780ed860fa6ee693611c8c7839af4eed9cb409e5ecb54e27ae974bedf738",
+    "val.csv": "315b1c6e85248771c7fcc0f25bb6ff8d2709be2a85a8362913a4a6dc9ab706e3",
+    "test_real.csv": "a855164b4bca62c19043eebf81f6ec14eef7f2e434ad5d777fe3bab7ded750d5",
+    "test_sd14.csv": "7d462e1f5b804c4adb0ea90d826da377153afedf5737dd5299120c3b9d92ad91",
+    "test_sd15.csv": "4d57795bf0be5c560febcff575603dc6a21b11308862e82fd0c0c49d59346fdf",
+    "test_adm.csv": "bf9f6a21670d7a96b3baed50f6ad504726090116df466e7839df6ae9b209fe60",
+    "test_midjourney.csv": "1559845807ed292bc29325c5cba541c6db8abbfc594599d8982e1f91841f63b4",
+    "test_biggan.csv": "ab693bfd8294a845eab37cad2f4e1faec5b20c3d5a227cd3019ba20f0bb0f81e"
+  }
+}

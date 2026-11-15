@@ -1,0 +1,17 @@
+{
+  "accuracy": 0.7275,
+  "balanced_accuracy": 0.7274999999999999,
+  "auroc": 0.8467217999999999,
+  "f1": 0.49961499716991364,
+  "protocol": "Macro across generator pairs sharing the same real images; correlated domain estimates",
+  "test_manifest_sha256": {
+    "test_real.csv": "a855164b4bca62c19043eebf81f6ec14eef7f2e434ad5d777fe3bab7ded750d5",
+    "test_adm.csv": "bf9f6a21670d7a96b3baed50f6ad504726090116df466e7839df6ae9b209fe60",
+    "test_biggan.csv": "ab693bfd8294a845eab37cad2f4e1faec5b20c3d5a227cd3019ba20f0bb0f81e",
+    "test_midjourney.csv": "1559845807ed292bc29325c5cba541c6db8abbfc594599d8982e1f91841f63b4",
+    "test_sd14.csv": "7d462e1f5b804c4adb0ea90d826da377153afedf5737dd5299120c3b9d92ad91",
+    "test_sd15.csv": "4d57795bf0be5c560febcff575603dc6a21b11308862e82fd0c0c49d59346fdf"
+  },
+  "checkpoint_sha256": "4e9a62adc153aa4008f4b613d10d72d88d1c356daf474bb38514ee00d7cd501e",
+  "test_used_for_selection": false
+}

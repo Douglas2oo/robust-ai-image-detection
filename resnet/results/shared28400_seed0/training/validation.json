@@ -1,0 +1,43 @@
+{
+  "best_epoch": 19,
+  "raw": {
+    "n": 4000,
+    "loss": 0.008124406738389324,
+    "accuracy": 0.998,
+    "balanced_accuracy": 0.998,
+    "auroc": 0.9999187500000001,
+    "f1": 0.9980029955067399,
+    "confusion_matrix": [
+      [
+        1993,
+        7
+      ],
+      [
+        1,
+        1999
+      ]
+    ],
+    "threshold": 0.5,
+    "temperature": 1.0
+  },
+  "calibrated": {
+    "n": 4000,
+    "loss": 0.0065951104692982595,
+    "accuracy": 0.99875,
+    "balanced_accuracy": 0.99875,
+    "auroc": 0.9999187500000001,
+    "f1": 0.9987503124218945,
+    "confusion_matrix": [
+      [
+        1997,
+        3
+      ],
+      [
+        2,
+        1998
+      ]
+    ],
+    "threshold": 0.6758551746105708,
+    "temperature": 1.707805956783596
+  }
+}
