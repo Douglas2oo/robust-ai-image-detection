@@ -1,0 +1,8 @@
+*.pt
+*.pth
+*.ckpt
+__pycache__/
+*.py[cod]
+.venv/
+outputs/
+logs/

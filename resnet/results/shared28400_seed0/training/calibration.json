@@ -1,0 +1,10 @@
+{
+  "temperature": 1.707805956783596,
+  "threshold": 0.6758551746105708,
+  "source": "validation only",
+  "temperature_bounds_log": [
+    -3.0,
+    3.0
+  ],
+  "threshold_objective": "validation balanced accuracy; ties nearest 0.5"
+}

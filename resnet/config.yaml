@@ -1,31 +1,27 @@
-# 骨架配置；null 表示待试跑后确定，训练实现应拒绝未填写的必需参数。
-experiment: resnet
-seed: 42
-
+experiment: resnet_clip_shared28400_baseline
+seed: 0
 model:
   name: resnet50
-  pretrained_weights: DEFAULT
+  pretrained_weights: IMAGENET1K_V2
   output_dim: 1
-  finetune_mode: null
-
+  finetune_mode: all
 data:
-  root: data
-  train_manifest: manifests/train.csv
-  val_manifest: manifests/val.csv
+  root: /project/mscaispod2026/group11
+  train_manifest: manifests/clip_shared_v1/train.csv
+  val_manifest: manifests/clip_shared_v1/val.csv
   image_size: 224
   color_mode: RGB
   normalization: pretrained_weights
-
 training:
   loss: binary_cross_entropy_with_logits
-  batch_size: null
-  epochs: null
-  learning_rate: null
-  weight_decay: null
-
+  batch_size: 32
+  epochs: 20
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  workers: 4
+  patience: 5
 augmentation:
   enabled: false
-
 paths:
-  checkpoint_dir: checkpoints/resnet
-  output_dir: outputs/resnet
+  checkpoint_dir: outputs/resnet_shared28400
+  output_dir: outputs/resnet_shared28400

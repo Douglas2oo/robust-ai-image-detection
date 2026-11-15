@@ -1,0 +1,17 @@
+{
+  "torch": "2.7.1+cu126",
+  "python": "3.10.12",
+  "device": "cuda",
+  "gpu": "NVIDIA H800",
+  "pretrained": true,
+  "manifest_sha256": {
+    "train": "944c780ed860fa6ee693611c8c7839af4eed9cb409e5ecb54e27ae974bedf738",
+    "val": "315b1c6e85248771c7fcc0f25bb6ff8d2709be2a85a8362913a4a6dc9ab706e3"
+  },
+  "slurm_job_id": "782108",
+  "labels": {
+    "real": 0,
+    "ai": 1
+  },
+  "preprocessing": "ResNet50 IMAGENET1K_V2 transforms: resize 232, center crop 224, ImageNet normalization"
+}

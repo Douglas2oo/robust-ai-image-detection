@@ -1,7 +1,7 @@
-"""ResNet-50 二分类模型：待实现。
-
-从 ImageNet 预训练权重开始，将分类头替换为单个输出 logit。
-输入为经过对应权重预处理的图像张量，输出为每张图像的原始 logit。
-冻结或微调范围在小规模试跑后确定，记录于 config.yaml。
-模型不在内部执行温度缩放或阈值判定。
-"""
+"""Torchvision ResNet-50 V2, one logit; compatible with the common label interface."""
+def build_model(pretrained=True):
+    from torch import nn
+    from torchvision.models import resnet50, ResNet50_Weights
+    m=resnet50(weights=ResNet50_Weights.IMAGENET1K_V2 if pretrained else None)
+    m.fc=nn.Linear(m.fc.in_features,1)
+    return m

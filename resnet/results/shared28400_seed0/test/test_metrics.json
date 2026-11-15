@@ -1,0 +1,112 @@
+[
+  {
+    "n": 2000,
+    "loss": 4.363326844075157,
+    "accuracy": 0.5115,
+    "balanced_accuracy": 0.5115,
+    "auroc": 0.714216,
+    "f1": 0.05603864734299517,
+    "confusion_matrix": [
+      [
+        994,
+        6
+      ],
+      [
+        971,
+        29
+      ]
+    ],
+    "threshold": 0.6758551746105708,
+    "temperature": 1.707805956783596,
+    "generator": "adm",
+    "condition": "clean"
+  },
+  {
+    "n": 2000,
+    "loss": 5.033019715720064,
+    "accuracy": 0.497,
+    "balanced_accuracy": 0.497,
+    "auroc": 0.656812,
+    "f1": 0.0,
+    "confusion_matrix": [
+      [
+        994,
+        6
+      ],
+      [
+        1000,
+        0
+      ]
+    ],
+    "threshold": 0.6758551746105708,
+    "temperature": 1.707805956783596,
+    "generator": "biggan",
+    "condition": "clean"
+  },
+  {
+    "n": 2000,
+    "loss": 2.3645611074011144,
+    "accuracy": 0.6475,
+    "balanced_accuracy": 0.6475,
+    "auroc": 0.863624,
+    "f1": 0.46059678653404745,
+    "confusion_matrix": [
+      [
+        994,
+        6
+      ],
+      [
+        699,
+        301
+      ]
+    ],
+    "threshold": 0.6758551746105708,
+    "temperature": 1.707805956783596,
+    "generator": "midjourney",
+    "condition": "clean"
+  },
+  {
+    "n": 2000,
+    "loss": 0.029586858062248117,
+    "accuracy": 0.9905,
+    "balanced_accuracy": 0.9904999999999999,
+    "auroc": 0.999412,
+    "f1": 0.9904666332162569,
+    "confusion_matrix": [
+      [
+        994,
+        6
+      ],
+      [
+        13,
+        987
+      ]
+    ],
+    "threshold": 0.6758551746105708,
+    "temperature": 1.707805956783596,
+    "generator": "sd14",
+    "condition": "clean"
+  },
+  {
+    "n": 2000,
+    "loss": 0.028445508645686766,
+    "accuracy": 0.991,
+    "balanced_accuracy": 0.991,
+    "auroc": 0.9995449999999999,
+    "f1": 0.9909729187562688,
+    "confusion_matrix": [
+      [
+        994,
+        6
+      ],
+      [
+        12,
+        988
+      ]
+    ],
+    "threshold": 0.6758551746105708,
+    "temperature": 1.707805956783596,
+    "generator": "sd15",
+    "condition": "clean"
+  }
+]
