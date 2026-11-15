@@ -1,0 +1,92 @@
+{
+  "args": {
+    "data_root": "/project/mscaispod2026/group11",
+    "gen": [
+      "sd14=genimage/sd14",
+      "sd15=genimage/sd15",
+      "adm=genimage/adm",
+      "midjourney=genimage/midjourney",
+      "biggan=genimage/biggan"
+    ],
+    "train_gen": "sd14",
+    "ext": [],
+    "out_dir": "/project/mscaispod2026/rmabc/splits/v1",
+    "num_classes": 100,
+    "n_train": 20000,
+    "n_val": 2000,
+    "n_test": 1000,
+    "n_ext": 1000,
+    "hamming": 4,
+    "seed": 2026,
+    "workers": 8,
+    "wnid_list": null
+  },
+  "scan_sd14": {
+    "('train', 0)": 162000,
+    "('train', 1)": 162000,
+    "('val', 0)": 6000,
+    "('val', 1)": 6000
+  },
+  "scan_sd15": {
+    "('val', 0)": 8000,
+    "('val', 1)": 8000
+  },
+  "scan_adm": {
+    "('train', 0)": 157453,
+    "('train', 1)": 162000,
+    "('val', 0)": 6000,
+    "('val', 1)": 6000
+  },
+  "scan_midjourney": {
+    "('train', 0)": 161701,
+    "('train', 1)": 162000,
+    "('val', 0)": 6000,
+    "('val', 1)": 6000
+  },
+  "scan_biggan": {
+    "('train', 0)": 162000,
+    "('train', 1)": 162000,
+    "('val', 0)": 6000,
+    "('val', 1)": 6000
+  },
+  "dedup_removed": {
+    "pool_exact": 0,
+    "val_vs_train": 0,
+    "test_real": 0,
+    "test_sd14": 0,
+    "test_sd15": 1,
+    "test_adm": 0,
+    "test_midjourney": 0,
+    "test_biggan": 1
+  },
+  "sizes": {
+    "train": {
+      "0": 14200,
+      "1": 14200
+    },
+    "val": {
+      "0": 2000,
+      "1": 2000
+    },
+    "sd14": {
+      "0": 1000,
+      "1": 1000
+    },
+    "sd15": {
+      "0": 1000,
+      "1": 1000
+    },
+    "adm": {
+      "0": 1000,
+      "1": 1000
+    },
+    "midjourney": {
+      "0": 1000,
+      "1": 1000
+    },
+    "biggan": {
+      "0": 1000,
+      "1": 1000
+    }
+  }
+}

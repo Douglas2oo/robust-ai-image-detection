@@ -1,0 +1,21 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+ & \multicolumn{2}{c}{CLIP w/o aug} & \multicolumn{2}{c}{CLIP + aug} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Test set & Real acc. & AI recall & Real acc. & AI recall \\
+\midrule
+SD1.4$^\dagger$ & 96.3 & 94.9 & 93.5 & 94.0 \\
+SD1.5 & 96.3 & 93.2 & 93.5 & 91.5 \\
+Midjourney & 96.3 & 66.2 & 93.5 & 66.3 \\
+ADM & 96.3 & 25.7 & 93.5 & 31.2 \\
+BigGAN & 96.3 & 35.3 & 93.5 & 31.4 \\
+\bottomrule
+\end{tabular}}
+\caption{Per-class accuracy on clean images (\%). Real images are identical across test sets, so cross-generator errors are almost entirely missed generated images.}
+\label{tab:errors}
+\end{table}

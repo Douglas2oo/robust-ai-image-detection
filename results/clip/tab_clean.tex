@@ -1,0 +1,23 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{3}{c}{CLIP w/o aug} & \multicolumn{3}{c}{CLIP + aug} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Test set & Bal.\ Acc & AUROC & ECE$\downarrow$ & Bal.\ Acc & AUROC & ECE$\downarrow$ \\
+\midrule
+SD1.4$^\dagger$ & 95.6 & 99.2 & 1.6 & 93.7 & 98.6 & 2.3 \\
+SD1.5 & 94.8 & 99.0 & 2.4 & 92.5 & 98.1 & 3.4 \\
+Midjourney & 81.3 & 93.7 & 13.1 & 79.9 & 91.6 & 13.0 \\
+ADM & 61.0 & 77.8 & 34.4 & 62.3 & 77.4 & 31.0 \\
+BigGAN & 65.8 & 86.3 & 27.5 & 62.4 & 83.2 & 28.8 \\
+\midrule
+Unseen avg. & 75.7 & 89.2 & 19.4 & 74.3 & 87.6 & 19.0 \\
+\bottomrule
+\end{tabular}}
+\caption{Clean cross-generator results (\%, mean over 3 seeds; std $\le$0.9 pt). Trained on SD1.4 only ($^\dagger$seen generator); each test set pairs 1{,}000 generated images with the same 1{,}000 held-out real ImageNet images. ECE after validation-only temperature scaling.}
+\label{tab:clean}
+\end{table}
