@@ -1,0 +1,6 @@
+.venv/
+weights/
+full/features/
+smoke/
+logs/
+__pycache__/

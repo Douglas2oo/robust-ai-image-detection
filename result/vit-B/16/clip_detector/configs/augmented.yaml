@@ -1,0 +1,49 @@
+# C1：与 C0 唯一的区别是训练图在抽特征前做对称的随机退化增强
+experiment: clip_aug
+
+model:
+  name: openai/clip-vit-large-patch14
+  feature_dim: 768
+  freeze_encoder: true
+  normalize_features: false
+
+paths:
+  data_root: data
+  manifest_dir: manifests
+  cache_dir: cache/clip
+  checkpoint_dir: checkpoints
+  output_dir: outputs
+
+augmentation:
+  enabled: true
+  hflip: 0.5
+  # 三种退化独立抽样、可叠加；顺序固定为 resize -> gaussian_blur -> jpeg
+  # 真实图和生成图使用相同的概率和范围，在原始分辨率上施加
+  resize:
+    probability: 0.3
+    scale_range: [0.25, 1.0]
+  gaussian_blur:
+    probability: 0.3
+    sigma_range: [0.1, 1.5]
+  jpeg:
+    probability: 0.5
+    quality_range: [50, 100]
+
+features:
+  views_per_image: 4
+  view_seed: 0
+  batch_size: 64
+  num_workers: auto
+
+training:
+  loss: binary_cross_entropy_with_logits
+  seeds: [0, 1, 2]
+  learning_rates: [0.001, 0.0003, 0.0001]
+  weight_decays: [0.0, 0.0001, 0.01]
+  epochs: 400
+  patience: 20
+  batch_size: 512
+
+evaluation:
+  perturbations:
+    [clean, jpeg90, jpeg70, jpeg50, down0.5, down0.25, blur0.5, blur1.0]

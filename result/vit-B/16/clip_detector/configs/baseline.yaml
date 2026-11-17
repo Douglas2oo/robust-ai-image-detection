@@ -1,0 +1,38 @@
+# C0：冻结 CLIP ViT-L/14 + 线性头，训练图只做随机水平翻转，无退化增强
+experiment: clip_noaug
+
+model:
+  name: openai/clip-vit-large-patch14 # HuggingFace 上的 OpenAI 官方权重
+  feature_dim: 768 # 投影后的图像特征
+  freeze_encoder: true
+  normalize_features: false # 与 UniversalFakeDetect 一致，不做 L2 归一化
+
+paths:
+  data_root: data
+  manifest_dir: manifests
+  cache_dir: cache/clip
+  checkpoint_dir: checkpoints
+  output_dir: outputs
+
+augmentation:
+  enabled: false
+  hflip: 0.5
+
+features:
+  views_per_image: 4 # 每张训练图预先抽 4 个视图；每个 epoch 随机取 1 个
+  view_seed: 0 # 视图随机种子
+  batch_size: 64
+  num_workers: auto
+
+training:
+  loss: binary_cross_entropy_with_logits
+  seeds: [0, 1, 2]
+  learning_rates: [0.001, 0.0003, 0.0001] # 与 weight_decays 组成网格，按验证集 BCE 选择
+  weight_decays: [0.0, 0.0001, 0.01]
+  epochs: 400
+  patience: 20
+  batch_size: 512
+
+evaluation:
+  perturbations:
+    [clean, jpeg90, jpeg70, jpeg50, down0.5, down0.25, blur0.5, blur1.0]

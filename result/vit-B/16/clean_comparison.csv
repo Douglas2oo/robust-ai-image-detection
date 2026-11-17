@@ -1,0 +1,9 @@
+model,domain,seeds,balanced_accuracy,auroc,f1
+clip_aug,sd14,3,0.937167,0.986025,0.937323
+clip_aug,unseen_macro,3,0.742750,0.875810,0.649652
+clip_noaug,sd14,3,0.956167,0.992365,0.955865
+clip_noaug,unseen_macro,3,0.757125,0.892061,0.657961
+vit_b16_noaug,sd14,3,0.790667,0.869773,0.791280
+vit_b16_noaug,unseen_macro,3,0.619125,0.657038,0.514812
+resnet50,sd14,1,0.990500,0.999412,0.990467
+resnet50,unseen_macro,1,0.661750,0.808549,0.376902
