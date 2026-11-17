@@ -25,11 +25,27 @@ def load_clip_encoder(name: str = DEFAULT_MODEL, device: str = "cuda"):
     return model
 
 
+VIT_MODEL = "torchvision/vit_b_16-imagenet1k_v1"
+
+
+def load_encoder(name: str, device: str):
+    """Return a frozen encoder compatible with the shared feature cache."""
+    if name != VIT_MODEL:
+        return load_clip_encoder(name, device)
+
+    from torchvision.models import ViT_B_16_Weights, vit_b_16
+
+    model = vit_b_16(weights=ViT_B_16_Weights.IMAGENET1K_V1)
+    model.heads = torch.nn.Identity()
+    return model.eval().requires_grad_(False).to(device)
+
+
 @torch.no_grad()
-def encode(model, x: torch.Tensor, device: str, normalize: bool = False) -> torch.Tensor:
+def encode(model, x: torch.Tensor, device: str, normalize: bool = False,
+           model_name: str = DEFAULT_MODEL) -> torch.Tensor:
     x = x.to(device, non_blocking=True)
     with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=(device == "cuda")):
-        f = model(pixel_values=x).image_embeds
+        f = model(x) if model_name == VIT_MODEL else model(pixel_values=x).image_embeds
     f = f.float()
     if normalize:
         f = torch.nn.functional.normalize(f, dim=-1)

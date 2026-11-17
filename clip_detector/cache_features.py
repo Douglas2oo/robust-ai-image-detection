@@ -23,9 +23,9 @@ from tqdm import tqdm
 
 from clip_detector.config import (add_path_arguments, degrade_config, load_config, path_overrides,
                                   set_seed, train_cache_path, train_mode)
-from clip_detector.model import encode, load_clip_encoder
+from clip_detector.model import VIT_MODEL, encode, load_encoder
 from common.data import ManifestImageDataset, read_manifest
-from common.preprocessing import clip_preprocess
+from common.preprocessing import clip_preprocess, imagenet_preprocess
 
 
 def _num_workers(value) -> int:
@@ -48,14 +48,15 @@ def extract(config, manifest: Path, out: Path, mode: str, model_name: str) -> No
     set_seed(seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     df = read_manifest(manifest)
-    ds = ManifestImageDataset(df, config["paths"]["data_root"], mode, clip_preprocess(), views=views,
+    preprocess = imagenet_preprocess() if model_name == VIT_MODEL else clip_preprocess()
+    ds = ManifestImageDataset(df, config["paths"]["data_root"], mode, preprocess, views=views,
                               perturbs=perturbs, seed=seed, aug_cfg=degrade_config(config),
                               hflip=float(config["augmentation"].get("hflip", 0.5)))
     dl = torch.utils.data.DataLoader(ds, batch_size=int(feat_cfg["batch_size"]), shuffle=False,
                                      num_workers=workers, pin_memory=(device == "cuda"),
                                      persistent_workers=workers > 0,
                                      prefetch_factor=4 if workers > 0 else None)
-    model = load_clip_encoder(model_name, device)
+    model = load_encoder(model_name, device)
     print(f"[info] {len(ds)} images, mode={mode}, views={perturbs if mode == 'eval' else views}, "
           f"device={device}, workers={workers}")
 
@@ -63,7 +64,7 @@ def extract(config, manifest: Path, out: Path, mode: str, model_name: str) -> No
     t0 = time.time()
     for x, y, ok in tqdm(dl, mininterval=30):
         b, v = x.shape[:2]
-        f = encode(model, x.flatten(0, 1), device, normalize).view(b, v, -1)
+        f = encode(model, x.flatten(0, 1), device, normalize, model_name).view(b, v, -1)
         feats.append(f.half().cpu()); labels.append(y); oks.append(ok)
     dt = time.time() - t0
     feats = torch.cat(feats)
